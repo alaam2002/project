@@ -248,4 +248,58 @@ app.delete('/deletuser/:email', async (req, res) => {
 
 });
 
+
+const storage=multer.diskStorage({
+    destination:function(req,file,cb){  
+        
+        cb(null,path.join(__dirname,"./images"));
+    },
+    filename:function(req,file,cb){
+    
+        cb(null,file.originalname);
+    
+    }
+    
+    });
+    
+    const uploud=multer({storage});
+    
+    app.post('/image',uploud.single("image") ,async (req, res) => { 
+    
+        res.status(200).json({message: "image uplouded successfully! "});
+    
+    })   
+    
+    app.post('/cart/:id', async (req, res) => {
+    
+        try {
+    
+        const { productId, quantity, name, price } = req.body;
+    
+             const userId =req.params;
+    
+          let cart = await Cart.findOne({userId});
+      
+          if (cart) {
+          
+             cart.products[itemIndex++]= cart.products.push({ productId, quantity, name, price });
+              
+            cart = await cart.save();
+            return res.status(201).send(cart);
+        
+          } else {
+            //no cart for user, create new cart
+            const newCart = await Cart.create({
+              userId,
+              products: [{ productId, quantity, name, price }]
+            });
+      
+            return res.status(201).send(newCart);
+          
+          }  
+        } catch (err) {
+    
+          res.status(400).send("Something went wrong"+err);
+        }
+      });
 app.listen(3000,()=>{console.log(" server runing on port 3000")})
