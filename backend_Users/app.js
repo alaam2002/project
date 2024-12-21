@@ -169,4 +169,83 @@ if(user){
     });
 
 
+
+
+
+
+    app.get('/userslist/:email', async (req, res) => {
+        //get all users only admin
+
+ try{  
+
+const userAdmin=await User.findOne({email: req.params.email});
+
+if(userAdmin.Admin){
+const users=await  User.find().select("-password");
+res.status(200).json(users);  
+}else{
+    res.status(201).json( ' not allowed to you')
+
+}
+ 
+}catch(err)
+{
+res.status(400).json('server error: '+ err);
+}
+
+
+});
+
+
+
+
+
+app.get('/user/:email', async (req, res) => {
+
+
+    try{  
+
+    const user=await User.findOne({email :req.params.email}).select("-password");
+
+    if(user){
+
+        res.status(200).json(user); 
+    }else{
+        res.status(400).json("user not found");
+    }
+ 
+    }catch(err)  
+    {
+    res.status(400).json('server error: '+ err);
+    }
+
+});
+
+
+
+
+app.delete('/deletuser/:email', async (req, res) => { 
+
+   
+    try{  
+
+    const user=await User.findOneAndDelete({email :req.params.email})
+
+
+    if(user){
+
+        res.status(200).json({message: "user deleted successfully! "});
+    }else{
+       
+       
+        res.status(400).json({message:"user not found"});
+    }
+ 
+    }catch(err)  
+    {
+    res.status(400).json('server error: '+ err);
+    }  
+
+});
+
 app.listen(3000,()=>{console.log(" server runing on port 3000")})
